@@ -1,6 +1,8 @@
-#include<bits/stdc++.h>
+#include<iostream>
 using namespace std;
-int main(){
-    cout<<"Hello World";
+int main() {
+    int x;
+    cin >> x;
+    cout << x
     return 0;
 }
