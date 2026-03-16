@@ -1,8 +1,13 @@
-#include<iostream>
+#include <bits/stdc++.h>
 using namespace std;
+
+
 int main() {
-    int x;
-    cin >> x;
-    cout << x
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+
+   for(int i=1; i<=10; i++){
+        cout << "Saketh" << endl; 
+   }
     return 0;
 }

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diet Planner - Simple Nutrition Guide</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="container">
+        <div class="nav-brand"><i class="fas fa-leaf"></i> Diet Planner</div>
+        <div class="nav-links">
+          <a href="#diets" class="nav-link">
+            <i class="fas fa-utensils"></i> Diet Plans
+          </a>
+          <a href="#meal-plan" class="nav-link">
+            <i class="fas fa-calendar-alt"></i> Meal Planner
+          </a>
+          <a href="#bmi-calc" class="nav-link">
+            <i class="fas fa-weight"></i> BMI Calculator
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Header Section -->
+    <section class="header">
+      <div class="header-overlay"></div>
+      <div class="container">
+        <div class="header-content">
+          <h1>Achieve Your Health Goals</h1>
+          <p class="subtitle">
+            Simple, effective diet planning and health tracking tools
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Diet Plans Section -->
+      <section id="diets" class="section">
+        <h2>Popular Diet Plans</h2>
+        <div id="diets-container" class="diet-grid">
+          <!-- Diets loaded dynamically here -->
+        </div>
+      </section>
+
+      <!-- Meal Plan Section -->
+      <section id="meal-plan" class="section meal-section">
+        <h2>Generate Your Meal Plan</h2>
+        <div class="meal-plan-wrapper">
+          <div class="meal-plan-form">
+            <div class="form-group">
+              <label for="plan-days">Number of Days:</label>
+              <select id="plan-days">
+                <option value="3">3 Days</option>
+                <option value="7" selected>7 Days</option>
+                <option value="14">14 Days</option>
+                <option value="30">30 Days</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="plan-calories">Daily Calories Target:</label>
+              <input
+                type="number"
+                id="plan-calories"
+                value="2000"
+                min="1200"
+                max="3500"
+              />
+            </div>
+            <div class="form-group">
+              <label for="plan-restrictions">Restrictions:</label>
+              <input
+                type="text"
+                id="plan-restrictions"
+                placeholder="e.g., vegetarian, gluten-free"
+              />
+            </div>
+            <div class="form-group">
+              <label for="plan-preferences">Preferences:</label>
+              <input
+                type="text"
+                id="plan-preferences"
+                placeholder="e.g., Mediterranean, Asian, low-carb"
+              />
+            </div>
+            <button onclick="generateMealPlan()" class="btn btn-success">
+              <i class="fas fa-generate"></i> Generate Meal Plan
+            </button>
+          </div>
+          <div id="meal-plan-result" class="meal-plan-result"></div>
+        </div>
+      </section>
+
+      <!-- BMI Calculator Section -->
+      <section id="bmi-calc" class="section bmi-section">
+        <h2>BMI Calculator</h2>
+        <p class="section-desc">
+          Calculate your Body Mass Index and discover your health category
+        </p>
+        <div class="bmi-container">
+          <div class="bmi-calculator">
+            <form id="bmi-form">
+              <div class="form-group">
+                <label for="height">Height</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    id="height"
+                    placeholder="180"
+                    step="0.1"
+                    min="50"
+                    max="300"
+                  />
+                  <select id="height-unit">
+                    <option value="cm">cm</option>
+                    <option value="m">m</option>
+                    <option value="ft">ft</option>
+                    <option value="in">in</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="weight">Weight</label>
+                <div class="input-group">
+                  <input
+                    type="number"
+                    id="weight"
+                    placeholder="75"
+                    step="0.1"
+                    min="20"
+                    max="500"
+                  />
+                  <select id="weight-unit">
+                    <option value="kg">kg</option>
+                    <option value="lb">lb</option>
+                  </select>
+                </div>
+              </div>
+              <button
+                type="button"
+                onclick="calculateBMI()"
+                class="btn btn-primary"
+              >
+                <i class="fas fa-calculator"></i> Calculate BMI
+              </button>
+            </form>
+          </div>
+          <div id="bmi-result" class="bmi-result" style="display: none">
+            <div class="bmi-value">
+              <div class="bmi-number"><span id="bmi-number">0</span></div>
+              <div class="bmi-category"><span id="bmi-category">-</span></div>
+            </div>
+            <div class="bmi-info">
+              <h4>Your Health Category</h4>
+              <div id="bmi-description" class="bmi-description"></div>
+              <div class="bmi-recommendations">
+                <h4>Recommendations</h4>
+                <ul id="bmi-suggestions"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>
+          &copy; 2026 Diet Planner. Consult healthcare professionals before
+          making significant dietary changes.
+        </p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

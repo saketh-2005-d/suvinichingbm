@@ -1,0 +1,119 @@
+{
+  "diets": [
+    {
+      "id": "mediterranean",
+      "name": "Mediterranean Diet",
+      "description": "Heart-healthy diet inspired by countries bordering the Mediterranean Sea",
+      "duration": "Long-term",
+      "benefits": ["Heart health", "Weight management", "Brain health"],
+      "focus_foods": [
+        "Olive oil",
+        "Fish",
+        "Vegetables",
+        "Whole grains",
+        "Legumes",
+        "Nuts",
+        "Moderate wine"
+      ],
+      "avoid_foods": [
+        "Processed foods",
+        "Red meat",
+        "Refined sugars",
+        "Butter"
+      ],
+      "daily_breakdown": {
+        "breakfast": "Whole grain toast with olive oil and tomatoes",
+        "lunch": "Grilled fish with vegetables and brown rice",
+        "dinner": "Whole wheat pasta with vegetable sauce",
+        "snacks": "Nuts, fruits, olives"
+      }
+    },
+    {
+      "id": "keto",
+      "name": "Ketogenic Diet",
+      "description": "Low-carb, high-fat diet that helps enter ketosis for fat burning",
+      "duration": "Medium-term",
+      "benefits": ["Weight loss", "Improved energy", "Blood sugar control"],
+      "focus_foods": [
+        "Fats",
+        "Proteins",
+        "Low-carb vegetables",
+        "Nuts and seeds"
+      ],
+      "avoid_foods": ["Grains", "Sugar", "Fruits (most)", "Starchy vegetables"],
+      "daily_breakdown": {
+        "breakfast": "Eggs with cheese and bacon",
+        "lunch": "Steak with butter and leafy greens",
+        "dinner": "Salmon with avocado and broccoli",
+        "snacks": "Nuts, cheese, olives"
+      }
+    },
+    {
+      "id": "vegan",
+      "name": "Vegan Diet",
+      "description": "Plant-based diet excluding all animal products",
+      "duration": "Long-term",
+      "benefits": ["Ethical eating", "Heart health", "Weight management"],
+      "focus_foods": [
+        "Vegetables",
+        "Fruits",
+        "Legumes",
+        "Grains",
+        "Nuts",
+        "Seeds",
+        "Plant-based proteins"
+      ],
+      "avoid_foods": ["Meat", "Poultry", "Fish", "Dairy", "Eggs", "Honey"],
+      "daily_breakdown": {
+        "breakfast": "Oatmeal with berries and almond milk",
+        "lunch": "Lentil soup with whole grain bread",
+        "dinner": "Tofu stir-fry with quinoa",
+        "snacks": "Hummus with vegetables"
+      }
+    },
+    {
+      "id": "paleo",
+      "name": "Paleo Diet",
+      "description": "Focuses on whole foods like meats, fish, vegetables, and fruits",
+      "duration": "Medium-term",
+      "benefits": ["Energy boost", "Weight loss", "Reduced inflammation"],
+      "focus_foods": [
+        "Lean meat",
+        "Fish",
+        "Vegetables",
+        "Fruits",
+        "Nuts",
+        "Seeds",
+        "Healthy fats"
+      ],
+      "avoid_foods": [
+        "Grains",
+        "Legumes",
+        "Dairy",
+        "Processed foods",
+        "Refined sugars"
+      ],
+      "daily_breakdown": {
+        "breakfast": "Eggs with berries",
+        "lunch": "Grilled chicken with roasted vegetables",
+        "dinner": "Salmon with sweet potato",
+        "snacks": "Mixed nuts, fruit"
+      }
+    },
+    {
+      "id": "intermittent-fasting",
+      "name": "Intermittent Fasting",
+      "description": "Eating pattern that cycles between periods of eating and fasting",
+      "duration": "Long-term",
+      "benefits": ["Weight loss", "Improved metabolism", "Cellular repair"],
+      "focus_foods": ["Whole foods", "Proteins", "Vegetables", "Healthy fats"],
+      "avoid_foods": ["Processed foods", "Sugary drinks", "Excessive calories"],
+      "daily_breakdown": {
+        "fasting_window": "16 hours",
+        "eating_window": "8 hours",
+        "meal_1": "Large lunch with protein and vegetables",
+        "meal_2": "Dinner with balanced nutrients"
+      }
+    }
+  ]
+}
