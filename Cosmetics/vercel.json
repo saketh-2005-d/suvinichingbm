@@ -1,13 +1,3 @@
 {
-  "version": 2,
-  "public": true,
-  "buildCommand": "echo 'Static site - no build needed'",
-  "outputDirectory": ".",
-  "framework": null,
-  "redirects": [
-    {
-      "source": "/:path((?!.*\\.).*)",
-      "destination": "/index.html"
-    }
-  ]
+  "version": 2
 }
