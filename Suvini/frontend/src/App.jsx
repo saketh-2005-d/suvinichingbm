@@ -362,91 +362,101 @@ function ShopPage() {
 
         <p className="results-note">Showing {filtered.length} products</p>
 
-        <section className="grid product-grid">
-          {filtered.map((product) => {
-            const inWishlist = wishlistByClothId.has(product.id);
-            const soldOut = product.stock === "Sold Out";
-            return (
-              <article className="product card" key={product.id}>
-                <div className="product-media">
-                  <img src={getImageUrl(product.image)} alt={product.name} />
-                  <span className={`stock-tag ${soldOut ? "out" : "in"}`}>
-                    {product.stock || "In Stock"}
-                  </span>
-                </div>
-                <div className="product-body">
-                  <p className="muted product-category">
-                    {product.category || "General"}
-                  </p>
-                  <h3>{product.name}</h3>
-                  <p className="price">Rs {formatPrice(product.price)}</p>
-                  <div className="actions">
-                    <button
-                      onClick={() => setSelected(product)}
-                      className="btn secondary"
-                    >
-                      Details
-                    </button>
-                    <button
-                      className="btn"
-                      disabled={soldOut}
-                      onClick={() => toggleWishlist(product.id)}
-                    >
-                      {inWishlist ? "Remove" : "Add"}
-                    </button>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </section>
-      </section>
-
-      <section id="checkout" className="wishlist card">
-        <div className="section-head compact">
-          <h2>Wishlist Checkout</h2>
-          <p>
-            Shortlist your pieces and place your order directly on WhatsApp.
-          </p>
-        </div>
-        <div className="checkout-meta">
-          <p className="muted">Items: {selectedWishlistItems.length}</p>
-          <p className="checkout-total">
-            Total: Rs {formatPrice(wishlistTotal)}
-          </p>
-        </div>
-        {selectedWishlistItems.length > 0 ? (
-          <div className="wishlist-list">
-            {selectedWishlistItems.map((item) => (
-              <div key={item._id || item.id} className="wishlist-item">
-                <img
-                  src={getImageUrl(item.clothDetails.image)}
-                  alt={item.clothDetails.name}
-                />
-                <div>
-                  <p className="wishlist-name">{item.clothDetails.name}</p>
+        <div className="collection-commerce" id="checkout">
+          <div className="products-column">
+            <section className="grid product-grid">
+              {filtered.length === 0 ? (
+                <div className="empty-state card">
+                  <h3>No products found</h3>
                   <p className="muted">
-                    Rs {formatPrice(item.clothDetails.price)}
+                    Try another search or clear category filters to see more products.
                   </p>
                 </div>
-              </div>
-            ))}
+              ) : null}
+              {filtered.map((product) => {
+                const inWishlist = wishlistByClothId.has(product.id);
+                const soldOut = product.stock === "Sold Out";
+                return (
+                  <article className="product card" key={product.id}>
+                    <div className="product-media">
+                      <img src={getImageUrl(product.image)} alt={product.name} />
+                      <span className={`stock-tag ${soldOut ? "out" : "in"}`}>
+                        {product.stock || "In Stock"}
+                      </span>
+                    </div>
+                    <div className="product-body">
+                      <p className="muted product-category">
+                        {product.category || "General"}
+                      </p>
+                      <h3>{product.name}</h3>
+                      <p className="price">Rs {formatPrice(product.price)}</p>
+                      <div className="actions">
+                        <button
+                          onClick={() => setSelected(product)}
+                          className="btn secondary"
+                        >
+                          Details
+                        </button>
+                        <button
+                          className="btn"
+                          disabled={soldOut}
+                          onClick={() => toggleWishlist(product.id)}
+                        >
+                          {inWishlist ? "Remove" : "Add"}
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </section>
           </div>
-        ) : null}
-        <div className="order-row">
-          <input
-            value={orderName}
-            onChange={(e) => setOrderName(e.target.value)}
-            placeholder="Your name"
-          />
-          <input
-            value={orderPhone}
-            onChange={(e) => setOrderPhone(e.target.value)}
-            placeholder="Phone number"
-          />
-          <button className="btn" onClick={sendOrderToWhatsApp}>
-            Order on WhatsApp
-          </button>
+
+          <aside className="wishlist card checkout-panel">
+            <div className="section-head compact">
+              <h2>Wishlist Checkout</h2>
+              <p>
+                Shortlist your pieces and place your order directly on WhatsApp.
+              </p>
+            </div>
+            <div className="checkout-meta">
+              <p className="muted">Items: {selectedWishlistItems.length}</p>
+              <p className="checkout-total">Total: Rs {formatPrice(wishlistTotal)}</p>
+            </div>
+            {selectedWishlistItems.length > 0 ? (
+              <div className="wishlist-list">
+                {selectedWishlistItems.map((item) => (
+                  <div key={item._id || item.id} className="wishlist-item">
+                    <img
+                      src={getImageUrl(item.clothDetails.image)}
+                      alt={item.clothDetails.name}
+                    />
+                    <div>
+                      <p className="wishlist-name">{item.clothDetails.name}</p>
+                      <p className="muted">Rs {formatPrice(item.clothDetails.price)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="muted">Your wishlist is empty. Add items to continue.</p>
+            )}
+            <div className="order-row order-row-stack">
+              <input
+                value={orderName}
+                onChange={(e) => setOrderName(e.target.value)}
+                placeholder="Your name"
+              />
+              <input
+                value={orderPhone}
+                onChange={(e) => setOrderPhone(e.target.value)}
+                placeholder="Phone number"
+              />
+              <button className="btn" onClick={sendOrderToWhatsApp}>
+                Order on WhatsApp
+              </button>
+            </div>
+          </aside>
         </div>
       </section>
 

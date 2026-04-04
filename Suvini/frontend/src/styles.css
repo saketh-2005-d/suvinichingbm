@@ -262,6 +262,32 @@ body {
   gap: 0.75rem;
 }
 
+.collection-commerce {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.products-column {
+  min-width: 0;
+}
+
+.checkout-panel {
+  position: sticky;
+  top: 16px;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  padding: 1rem;
+  text-align: center;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.4rem;
+}
+
 .results-note {
   margin: 0;
   color: #7b5b47;
@@ -604,6 +630,10 @@ textarea {
   gap: 0.65rem;
 }
 
+.order-row-stack {
+  grid-template-columns: 1fr;
+}
+
 .checkout-total {
   margin: 0.75rem 0 0;
   font-weight: 800;
@@ -698,6 +728,7 @@ textarea {
   .hero-shop,
   .benefits-row,
   .latest-grid,
+  .collection-commerce,
   .section-head,
   .toolbar,
   .order-row,
@@ -735,6 +766,10 @@ textarea {
   .checkout-meta {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .checkout-panel {
+    position: static;
   }
 
   .topbar {
