@@ -1,3 +1,15 @@
 {
-  "version": 2
+  "version": 2,
+  "builds": [
+    {
+      "src": "Suvini/backend/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "Suvini/backend/server.js"
+    }
+  ]
 }
