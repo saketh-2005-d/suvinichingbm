@@ -21,37 +21,39 @@ if errorlevel 1 (
 )
 cd ..
 
+echo [2] Installing frontend dependencies...
+cd frontend
+call npm install
+if errorlevel 1 (
+    echo ERROR: Failed to install frontend dependencies
+    pause
+    exit /b 1
+)
+cd ..
+
 echo.
-echo [2] Starting backend server on port 5000...
+echo [3] Starting backend server on port 5000...
 echo.
 start cmd /k "cd backend && npm start"
 
 echo.
-echo [3] Opening client website...
-timeout /t 2
-if exist client\index.html (
-    start client\index.html
-) else (
-    echo ERROR: Client index.html not found
-)
+echo [4] Starting frontend dev server on port 5173...
+start cmd /k "cd frontend && npm run dev"
 
 echo.
-echo [4] Opening admin panel...
-if exist admin\index.html (
-    start admin\index.html
-) else (
-    echo ERROR: Admin index.html not found
-)
+echo [5] Opening frontend website...
+timeout /t 3
+start http://localhost:5173
 
 echo.
 echo ================================================
 echo Suvini Clothing Application is starting...
 echo.
 echo Backend Server: http://localhost:5000
-echo Client: Open client/index.html in browser
-echo Admin: Open admin/index.html in browser
+echo Frontend: http://localhost:5173
+echo Admin route: http://localhost:5173/admin
 echo.
-echo Press Ctrl+C in the backend window to stop server
+echo Press Ctrl+C in the backend and frontend windows to stop services
 echo ================================================
 echo.
 pause

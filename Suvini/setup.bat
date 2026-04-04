@@ -19,7 +19,7 @@ echo ✓ Node.js found
 echo.
 
 REM Install backend dependencies
-echo [2/3] Installing backend dependencies...
+echo [2/4] Installing backend dependencies...
 cd backend
 call npm install
 if errorlevel 1 (
@@ -31,12 +31,25 @@ cd ..
 echo ✓ Backend dependencies installed
 echo.
 
+REM Install frontend dependencies
+echo [3/4] Installing frontend dependencies...
+cd frontend
+call npm install
+if errorlevel 1 (
+    echo Failed to install frontend dependencies
+    pause
+    exit /b 1
+)
+cd ..
+echo ✓ Frontend dependencies installed
+echo.
+
 REM Verify structure
-echo [3/3] Verifying project structure...
-if not exist client\index.html echo ✗ Client missing
-if not exist admin\index.html echo ✗ Admin missing
-if exist client\index.html echo ✓ Client found
-if exist admin\index.html echo ✓ Admin found
+echo [4/4] Verifying project structure...
+if not exist frontend\index.html echo ✗ Frontend missing
+if not exist backend\server.js echo ✗ Backend missing
+if exist frontend\index.html echo ✓ Frontend found
+if exist backend\server.js echo ✓ Backend found
 echo.
 
 echo ====================================
@@ -44,9 +57,8 @@ echo Setup complete!
 echo.
 echo Next steps:
 echo 1. Run: npm start (in backend folder)
-echo 2. Open: client/index.html
-echo 3. Open: admin/index.html
-echo.
-echo For detailed instructions, see QUICKSTART.md
+echo 2. Run: npm run dev (in frontend folder)
+echo 3. Open: http://localhost:5173
+echo 4. Admin route: http://localhost:5173/admin
 echo ====================================
 pause

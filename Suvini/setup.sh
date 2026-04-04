@@ -16,7 +16,7 @@ echo "✓ Node.js found"
 echo ""
 
 # Install backend dependencies
-echo "[2/3] Installing backend dependencies..."
+echo "[2/4] Installing backend dependencies..."
 cd backend
 npm install
 if [ $? -ne 0 ]; then
@@ -27,10 +27,22 @@ cd ..
 echo "✓ Backend dependencies installed"
 echo ""
 
+# Install frontend dependencies
+echo "[3/4] Installing frontend dependencies..."
+cd frontend
+npm install
+if [ $? -ne 0 ]; then
+    echo "Failed to install frontend dependencies"
+    exit 1
+fi
+cd ..
+echo "✓ Frontend dependencies installed"
+echo ""
+
 # Verify structure
-echo "[3/3] Verifying project structure..."
-[ -f client/index.html ] && echo "✓ Client found" || echo "✗ Client missing"
-[ -f admin/index.html ] && echo "✓ Admin found" || echo "✗ Admin missing"
+echo "[4/4] Verifying project structure..."
+[ -f frontend/index.html ] && echo "✓ Frontend found" || echo "✗ Frontend missing"
+[ -f backend/server.js ] && echo "✓ Backend found" || echo "✗ Backend missing"
 echo ""
 
 echo "===================================="
@@ -38,8 +50,7 @@ echo "Setup complete!"
 echo ""
 echo "Next steps:"
 echo "1. Run: npm start (in backend folder)"
-echo "2. Open: client/index.html"
-echo "3. Open: admin/index.html"
-echo ""
-echo "For detailed instructions, see QUICKSTART.md"
+echo "2. Run: npm run dev (in frontend folder)"
+echo "3. Open: http://localhost:5173"
+echo "4. Admin route: http://localhost:5173/admin"
 echo "===================================="

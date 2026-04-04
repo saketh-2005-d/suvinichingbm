@@ -55,6 +55,13 @@ function ShopPage() {
       .filter((item) => item.clothDetails);
   }, [wishlist, products]);
 
+  const wishlistTotal = useMemo(() => {
+    return selectedWishlistItems.reduce(
+      (sum, item) => sum + Number(item.clothDetails.price || 0),
+      0,
+    );
+  }, [selectedWishlistItems]);
+
   async function loadData() {
     try {
       setLoading(true);
@@ -135,6 +142,20 @@ function ShopPage() {
 
   return (
     <div className="page">
+      <div className="topbar card">
+        <div>
+          <strong>SUVINI</strong>
+          <span className="muted topbar-sub"> Everyday festive wear</span>
+        </div>
+        <div className="topbar-actions">
+          <span className="pill">{products.length} products</span>
+          <span className="pill">{selectedWishlistItems.length} wishlist</span>
+          <a className="btn secondary" href="/admin">
+            Admin
+          </a>
+        </div>
+      </div>
+
       <header className="hero">
         <div className="hero-inner">
           <p className="chip">Suvini Clothing</p>
@@ -148,6 +169,21 @@ function ShopPage() {
           </a>
         </div>
       </header>
+
+      <section className="stats-row">
+        <article className="card stat-card">
+          <p className="stat-title">In Catalog</p>
+          <h3>{products.length}</h3>
+        </article>
+        <article className="card stat-card">
+          <p className="stat-title">Wishlist Items</p>
+          <h3>{selectedWishlistItems.length}</h3>
+        </article>
+        <article className="card stat-card">
+          <p className="stat-title">Wishlist Total</p>
+          <h3>Rs {wishlistTotal}</h3>
+        </article>
+      </section>
 
       <section className="toolbar card">
         <input
@@ -163,6 +199,19 @@ function ShopPage() {
             </option>
           ))}
         </select>
+      </section>
+
+      <section className="quick-cats">
+        <button className={`chip-btn ${category === "" ? "active" : ""}`} onClick={() => setCategory("")}>All</button>
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            className={`chip-btn ${category === cat ? "active" : ""}`}
+            onClick={() => setCategory(cat)}
+          >
+            {cat}
+          </button>
+        ))}
       </section>
 
       {loading ? <p className="status">Loading products...</p> : null}
@@ -203,6 +252,19 @@ function ShopPage() {
       <section className="wishlist card">
         <h2>Wishlist Checkout</h2>
         <p className="muted">Items in wishlist: {selectedWishlistItems.length}</p>
+        {selectedWishlistItems.length > 0 ? (
+          <div className="wishlist-list">
+            {selectedWishlistItems.map((item) => (
+              <div key={item._id || item.id} className="wishlist-item">
+                <img src={getImageUrl(item.clothDetails.image)} alt={item.clothDetails.name} />
+                <div>
+                  <p className="wishlist-name">{item.clothDetails.name}</p>
+                  <p className="muted">Rs {item.clothDetails.price}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <div className="order-row">
           <input
             value={orderName}
@@ -218,6 +280,7 @@ function ShopPage() {
             Order on WhatsApp
           </button>
         </div>
+        <p className="checkout-total">Checkout Total: Rs {wishlistTotal}</p>
       </section>
 
       {selected ? (
