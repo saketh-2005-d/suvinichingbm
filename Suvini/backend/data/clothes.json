@@ -1,0 +1,54 @@
+[
+  {
+    "id": "cdf48483-faa3-403c-92eb-b7d523f5420a",
+    "name": "d",
+    "description": "",
+    "price": 1880,
+    "size": "All",
+    "color": "blue",
+    "category": "Cotton",
+    "image": "/uploads/1775312760568-78c96b72-9e0c-4f42-b30d-d8c26fcbc9b2-WhatsApp Image 2026-04-01 at 8.49.22 PM.jpeg",
+    "createdAt": "2026-04-04T12:22:44.149Z",
+    "updatedAt": "2026-04-04T14:26:00.575Z",
+    "stock": "In Stock"
+  },
+  {
+    "id": "bff90b16-d381-4271-9c0b-5c045605b6be",
+    "name": "Semi pattu temple border",
+    "description": "",
+    "price": 1699,
+    "size": "All Sizes",
+    "color": "",
+    "category": "Pattu",
+    "stock": "In Stock",
+    "image": "/uploads/1775312810439-25504fc7-48c2-4c8a-99af-bb42598e6489-WhatsApp Image 2026-04-01 at 8.49.23 PM.jpeg",
+    "createdAt": "2026-04-04T14:26:50.441Z",
+    "updatedAt": "2026-04-04T14:26:50.441Z"
+  },
+  {
+    "id": "93584316-6d73-44df-a9c8-b6d961379a1a",
+    "name": "jbj",
+    "description": "",
+    "price": 1678,
+    "size": "All Sizes",
+    "color": "",
+    "category": "Jamdhani",
+    "stock": "In Stock",
+    "image": "/uploads/1775314493912-c9ee3031-294b-4a89-8fb3-6a10a8552a5a-WhatsApp Image 2026-04-01 at 8.49.23 PM.jpeg",
+    "createdAt": "2026-04-04T14:54:53.913Z",
+    "updatedAt": "2026-04-04T14:54:53.913Z"
+  },
+  {
+    "id": "5ba0a8b3-51f0-4c2c-b5ba-2b602f47ec8c",
+    "name": "hkvkh6879",
+    "description": "",
+    "price": 1776,
+    "size": "All Sizes",
+    "color": "",
+    "category": "Fancy",
+    "stock": "In Stock",
+    "image": "/uploads/1775314858501-69703b84-3347-4967-8fc0-fb2a928116db-WhatsApp Image 2026-04-01 at 8.49.22 PM.jpeg",
+    "createdAt": "2026-04-04T15:00:58.502Z",
+    "updatedAt": "2026-04-04T15:00:58.503Z"
+  }
+]

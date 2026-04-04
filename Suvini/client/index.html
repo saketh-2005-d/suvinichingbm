@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suvini Clothing - Premium Women's Wear</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <button class="sidebar-close" onclick="closeSidebar()">&times;</button>
+      </div>
+      <div class="sidebar-menu">
+        <button
+          class="sidebar-item"
+          onclick="
+            scrollToSection('collections');
+            closeSidebar();
+          "
+        >
+          <span class="sidebar-icon">📚</span>
+          Collections
+        </button>
+        <button
+          class="sidebar-item"
+          onclick="
+            toggleWishlist();
+            closeSidebar();
+          "
+        >
+          <span class="sidebar-icon">❤️</span>
+          Wishlist
+        </button>
+        <button
+          class="sidebar-item admin-link"
+          onclick="window.location.href = '/admin/index.html'"
+        >
+          <span class="sidebar-icon">⚙️</span>
+          Admin Portal
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <button
+          class="sidebar-toggle"
+          id="sidebarToggle"
+          onclick="openSidebar()"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="nav-brand" onclick="scrollToSection('hero')">
+          <img
+            src="http://192.168.0.168:5000/uploads/suvini-logo.png"
+            alt="Suvini Clothing"
+            class="logo-img"
+          />
+        </div>
+        <div class="nav-links" id="navLinks">
+          <button class="nav-btn" onclick="scrollToSection('collections')">
+            Collections
+          </button>
+          <button
+            class="nav-btn"
+            onclick="toggleWishlist()"
+            title="View Wishlist"
+          >
+            ❤️ Wishlist
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar Overlay -->
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="closeSidebar()"
+    ></div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="hero-background"></div>
+      <div class="hero-content-wrapper">
+        <h2 class="hero-brand">Suvini Clothing</h2>
+        <h1 class="hero-tagline">Timeless Elegance in Every Thread</h1>
+        <p class="hero-tagline-sub">
+          Authentic Indian Textiles • Premium Quality • Artisanal Craftsmanship
+        </p>
+      </div>
+    </section>
+
+    <!-- Collections Preview -->
+    <section id="collections" class="collections-section">
+      <div class="container">
+        <h2>Our Collections</h2>
+        <div class="categories-grid">
+          <div class="category-card" onclick="filterByCategory('Cotton')">
+            <div class="category-icon">🧵</div>
+            <h3>Cotton</h3>
+            <p>Pure & Refined</p>
+          </div>
+          <div class="category-card" onclick="filterByCategory('Pattu')">
+            <div class="category-icon">✨</div>
+            <h3>Pattu</h3>
+            <p>Opulent Silk</p>
+          </div>
+          <div class="category-card" onclick="filterByCategory('Jamdhani')">
+            <div class="category-icon">🎨</div>
+            <h3>Jamdhani</h3>
+            <p>Artistic Heritage</p>
+          </div>
+          <div class="category-card" onclick="filterByCategory('Dresses')">
+            <div class="category-icon">👗</div>
+            <h3>Dresses</h3>
+            <p>Modern Grace</p>
+          </div>
+          <div class="category-card" onclick="filterByCategory('Fancy')">
+            <div class="category-icon">💎</div>
+            <h3>Fancy</h3>
+            <p>Exquisite Elegance</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section" id="products-section">
+      <div class="container">
+        <div class="products-header">
+          <h2>Curated Selection</h2>
+          <div class="filter-bar">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search by name or style..."
+              onkeyup="filterProducts()"
+              class="search-input"
+            />
+            <select
+              id="categoryFilter"
+              onchange="filterProducts()"
+              class="category-filter"
+            >
+              <option value="">All Categories</option>
+              <option value="Cotton">Cotton</option>
+              <option value="Pattu">Pattu</option>
+              <option value="Jamdhani">Jamdhani</option>
+              <option value="Dresses">Dresses</option>
+              <option value="Fancy">Fancy</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="productsGrid" class="products-grid">
+          <!-- Products will be loaded here -->
+          <div class="loading">Loading products...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="modal-body">
+          <img id="modalImage" src="" alt="Product" class="modal-image" />
+          <div class="modal-details">
+            <h2 id="modalName"></h2>
+            <p id="modalCategory" class="product-category"></p>
+            <p id="modalDescription" class="product-description"></p>
+            <div class="modal-price">
+              <span id="modalPrice" class="price"></span>
+            </div>
+            <div class="modal-info">
+              <p><strong>Size:</strong> <span id="modalSize"></span></p>
+              <p><strong>Color:</strong> <span id="modalColor"></span></p>
+              <p>
+                <strong>Availability:</strong>
+                <span id="modalStock" class="stock-badge"></span>
+              </p>
+            </div>
+            <div class="modal-actions">
+              <button
+                class="btn btn-wishlist"
+                onclick="toggleProductWishlist(currentProduct.id)"
+              >
+                ❤️ Add to Wishlist
+              </button>
+              <button class="btn btn-whatsapp" onclick="quickWhatsappContact()">
+                💬 DM to Order
+              </button>
+              <button class="btn btn-email" onclick="quickEmailContact()">
+                📧 Email Inquiry
+              </button>
+              <button class="btn btn-share" onclick="shareProduct()">
+                📤 Share
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h4>Collections</h4>
+          <ul>
+            <li>
+              <a
+                href="#"
+                onclick="
+                  filterByCategory('Cotton');
+                  return false;
+                "
+                >Essentials</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                onclick="
+                  filterByCategory('Pattu');
+                  return false;
+                "
+                >Opulent Silk</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                onclick="
+                  filterByCategory('Fancy');
+                  return false;
+                "
+                >Couture</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                onclick="
+                  filterByCategory('Dresses');
+                  return false;
+                "
+                >Evening Wear</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>About</h4>
+          <ul>
+            <li><a href="#">Our Story</a></li>
+            <li><a href="#">Craftsmanship</a></li>
+            <li><a href="#">Heritage Collections</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Contact</h4>
+          <p>
+            📧
+            <a
+              href="mailto:suvini.clothing@gmail.com"
+              style="color: inherit; text-decoration: none"
+              >suvini.clothing@gmail.com</a
+            >
+          </p>
+          <p>
+            📱
+            <a
+              href="https://wa.me/7349757596"
+              target="_blank"
+              style="color: inherit; text-decoration: none"
+              >+91 7349757596</a
+            >
+          </p>
+          <p>Handcrafted with Love. Made in India.</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 SUVINI CLOTHING. HERITAGE. ELEGANCE. EXCELLENCE.</p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
