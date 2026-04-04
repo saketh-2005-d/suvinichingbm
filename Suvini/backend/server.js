@@ -39,6 +39,11 @@ app.use("/api", (req, res, next) => {
     return next();
   }
 
+  // Allow GET requests to degrade gracefully in route handlers.
+  if (req.method === "GET") {
+    return next();
+  }
+
   if (mongoose.connection.readyState !== 1) {
     return res.status(503).json({
       message:

@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
+const mongoose = require("mongoose");
 const Cloth = require("../models/Cloth");
 const {
   uploadBufferToCloudinary,
@@ -23,6 +24,10 @@ const upload = multer({
 // GET all clothes (for client)
 router.get("/", async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json([]);
+    }
+
     const clothes = await Cloth.find({});
     res.json(clothes.map(toClientCloth));
   } catch (err) {
@@ -35,6 +40,10 @@ router.get("/", async (req, res) => {
 // GET single cloth by ID
 router.get("/:id", async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(404).json({ message: "Cloth not found" });
+    }
+
     const cloth = await Cloth.findById(req.params.id);
     if (!cloth) {
       return res.status(404).json({ message: "Cloth not found" });

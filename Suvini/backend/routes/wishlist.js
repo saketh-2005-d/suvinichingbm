@@ -1,5 +1,6 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
+const mongoose = require("mongoose");
 const Wishlist = require("../models/Wishlist");
 const Cloth = require("../models/Cloth");
 
@@ -17,6 +18,10 @@ const toClientCloth = (clothDoc) => {
 // GET all wishlist items
 router.get("/", async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json([]);
+    }
+
     const wishlist = await Wishlist.find({});
     res.json(wishlist);
   } catch (err) {
@@ -29,6 +34,10 @@ router.get("/", async (req, res) => {
 // GET wishlist items with full cloth details
 router.get("/details/all", async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json([]);
+    }
+
     const wishlist = await Wishlist.find({});
 
     const wishlistWithDetails = await Promise.all(
