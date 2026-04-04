@@ -53,9 +53,13 @@ app.get("/api/health", (req, res) => {
   res.json({ message: "Server is running", status: "OK" });
 });
 
-// Default fallback route
-app.use((req, res) => {
-  res.status(404).json({ error: "Not Found" });
+// Serve client index.html for SPA routing (catch-all)
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "client", "index.html"));
 });
 
 // Only listen locally (not on Vercel)
