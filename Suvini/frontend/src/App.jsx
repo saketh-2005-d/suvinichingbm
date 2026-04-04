@@ -1,7 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 
+const normalizeApiBase = (baseUrl) => {
+  if (!baseUrl) {
+    return "";
+  }
+
+  const trimmed = baseUrl.trim().replace(/\/+$/, "");
+  return trimmed.endsWith("/api") ? trimmed : `${trimmed}/api`;
+};
+
 const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+  normalizeApiBase(import.meta.env.VITE_API_BASE_URL) ||
+  (typeof window !== "undefined" && window.location.hostname !== "localhost"
+    ? `${window.location.origin}/api`
+    : "http://localhost:5000/api");
 const ADMIN_EMAIL =
   import.meta.env.VITE_ADMIN_EMAIL || "suvini.clothing@gmail.com";
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "surekhasravan";
