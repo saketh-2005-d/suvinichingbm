@@ -16,6 +16,7 @@ const clothSchema = new mongoose.Schema(
     size: String,
     description: String,
     image: String,
+    imagePublicId: String,
   },
   { timestamps: true },
 );

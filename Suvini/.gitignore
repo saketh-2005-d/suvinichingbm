@@ -13,3 +13,4 @@ uploads/*
 data/*.json
 package-lock.json
 backend/.env
+frontend/.env

@@ -5,6 +5,15 @@ const Cloth = require("../models/Cloth");
 
 const router = express.Router();
 
+const toClientCloth = (clothDoc) => {
+  if (!clothDoc) {
+    return null;
+  }
+
+  const cloth = clothDoc.toObject();
+  return { ...cloth, id: cloth._id };
+};
+
 // GET all wishlist items
 router.get("/", async (req, res) => {
   try {
@@ -25,7 +34,7 @@ router.get("/details/all", async (req, res) => {
     const wishlistWithDetails = await Promise.all(
       wishlist.map(async (item) => {
         const cloth = await Cloth.findById(item.clothId);
-        return { ...item.toObject(), clothDetails: cloth };
+        return { ...item.toObject(), clothDetails: toClientCloth(cloth) };
       }),
     );
 

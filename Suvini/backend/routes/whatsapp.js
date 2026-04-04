@@ -1,8 +1,21 @@
 const express = require("express");
 const router = express.Router();
 
-const WHATSAPP_NUMBER = "7349757596";
+const WHATSAPP_NUMBER = process.env.WHATSAPP_NUMBER || "7349757596";
 const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}`;
+const APP_BASE_URL = process.env.APP_BASE_URL || "";
+
+const toAbsoluteImageUrl = (image) => {
+  if (!image) {
+    return "";
+  }
+
+  if (image.startsWith("http://") || image.startsWith("https://")) {
+    return image;
+  }
+
+  return `${APP_BASE_URL}${image}`;
+};
 
 // GET WhatsApp contact info
 router.get("/contact", (req, res) => {
@@ -34,7 +47,7 @@ router.post("/send-order", (req, res) => {
       if (item.size) message += `   📏 Size: ${item.size}\n`;
       if (item.color) message += `   🎨 Color: ${item.color}\n`;
       if (item.image)
-        message += `   📸 Product Image: http://localhost:5000${item.image}\n`;
+        message += `   📸 Product Image: ${toAbsoluteImageUrl(item.image)}\n`;
     });
 
     message += `\n─────────────────────\n`;

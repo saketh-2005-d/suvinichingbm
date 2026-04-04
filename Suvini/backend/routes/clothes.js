@@ -1,8 +1,11 @@
 const express = require("express");
-const path = require("path");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const Cloth = require("../models/Cloth");
+const {
+  uploadBufferToCloudinary,
+  deleteFromCloudinary,
+} = require("../utils/cloudinary");
 
 const router = express.Router();
 
@@ -12,18 +15,8 @@ const toClientCloth = (clothDoc) => {
 };
 
 // Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../uploads"));
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${uuidv4()}-${file.originalname}`;
-    cb(null, uniqueName);
-  },
-});
-
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 });
 
@@ -65,6 +58,12 @@ router.post("/", upload.single("image"), async (req, res) => {
         .json({ message: "Name, price, and image are required" });
     }
 
+    const uploadedImage = await uploadBufferToCloudinary(req.file.buffer, {
+      mimeType: req.file.mimetype,
+      folder: "suvini/products",
+      publicId: `cloth-${Date.now()}-${uuidv4()}`,
+    });
+
     const clothId = uuidv4();
     const newCloth = new Cloth({
       _id: clothId,
@@ -75,14 +74,18 @@ router.post("/", upload.single("image"), async (req, res) => {
       color: color || "",
       category: category || "Cotton",
       stock: stock || "In Stock",
-      image: `/uploads/${req.file.filename}`,
+      image: uploadedImage.secureUrl,
+      imagePublicId: uploadedImage.publicId,
     });
 
     await newCloth.save();
 
     res
       .status(201)
-      .json({ message: "Cloth added successfully", cloth: toClientCloth(newCloth) });
+      .json({
+        message: "Cloth added successfully",
+        cloth: toClientCloth(newCloth),
+      });
   } catch (err) {
     res.status(500).json({ message: "Error adding cloth", error: err.message });
   }
@@ -106,11 +109,27 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     if (color) cloth.color = color;
     if (category) cloth.category = category;
     if (stock) cloth.stock = stock;
-    if (req.file) cloth.image = `/uploads/${req.file.filename}`;
+    if (req.file) {
+      const uploadedImage = await uploadBufferToCloudinary(req.file.buffer, {
+        mimeType: req.file.mimetype,
+        folder: "suvini/products",
+        publicId: `cloth-${Date.now()}-${uuidv4()}`,
+      });
+
+      if (cloth.imagePublicId) {
+        await deleteFromCloudinary(cloth.imagePublicId);
+      }
+
+      cloth.image = uploadedImage.secureUrl;
+      cloth.imagePublicId = uploadedImage.publicId;
+    }
 
     await cloth.save();
 
-    res.json({ message: "Cloth updated successfully", cloth: toClientCloth(cloth) });
+    res.json({
+      message: "Cloth updated successfully",
+      cloth: toClientCloth(cloth),
+    });
   } catch (err) {
     res
       .status(500)
@@ -127,7 +146,14 @@ router.delete("/:id", async (req, res) => {
       return res.status(404).json({ message: "Cloth not found" });
     }
 
-    res.json({ message: "Cloth deleted successfully", cloth: toClientCloth(cloth) });
+    if (cloth.imagePublicId) {
+      await deleteFromCloudinary(cloth.imagePublicId);
+    }
+
+    res.json({
+      message: "Cloth deleted successfully",
+      cloth: toClientCloth(cloth),
+    });
   } catch (err) {
     res
       .status(500)
