@@ -1,9 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const fs = require("fs");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+
+require("dotenv").config();
 
 // Routes
 const clothesRoutes = require("./routes/clothes");
@@ -14,14 +15,16 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // MongoDB Connection
-const mongoUri = process.env.MONGODB_URI || "mongodb+srv://suviniclothing:surekhasravan@cluster0.qtq0z3l.mongodb.net/?appName=Cluster0";
+const mongoUri = process.env.MONGODB_URI;
 
-mongoose.connect(mongoUri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.log("❌ MongoDB connection error:", err));
+if (mongoUri) {
+  mongoose
+    .connect(mongoUri)
+    .then(() => console.log("✅ MongoDB connected"))
+    .catch((err) => console.log("❌ MongoDB connection error:", err));
+} else {
+  console.log("⚠️ MONGODB_URI is not set. Configure it in environment variables.");
+}
 
 // Middleware
 app.use(cors());

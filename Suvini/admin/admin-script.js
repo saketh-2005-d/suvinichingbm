@@ -1,6 +1,8 @@
 // API Configuration
-// Change this to your deployment URL when going live
-const API_BASE = "http://192.168.0.168:5000/api";
+// Automatically uses the current domain in production (Vercel) and local dev.
+const ORIGIN_BASE = window.location.origin;
+const API_BASE = `${ORIGIN_BASE}/api`;
+const IMAGE_BASE = ORIGIN_BASE;
 
 // Admin Credentials
 const ADMIN_CREDENTIALS = {
@@ -362,7 +364,7 @@ function displayClothesTable(clothes) {
     .map(
       (cloth) => `
         <tr>
-            <td><img src="${API_BASE}${cloth.image}" alt="${cloth.name}" onerror="this.src='https://via.placeholder.com/50?text=No+Image'"></td>
+            <td><img src="${IMAGE_BASE}${cloth.image}" alt="${cloth.name}" onerror="this.src='https://via.placeholder.com/50?text=No+Image'"></td>
             <td>${cloth.name}</td>
             <td>${cloth.category || "General"}</td>
             <td>₹${cloth.price}</td>
@@ -415,7 +417,7 @@ async function editCloth(clothId) {
     // Show image preview
     const previewDiv = document.getElementById("imagePreview");
     if (cloth.image) {
-      previewDiv.innerHTML = `<img src="${API_BASE}${cloth.image}" alt="Preview" style="max-width: 100%; border-radius: 4px;">`;
+      previewDiv.innerHTML = `<img src="${IMAGE_BASE}${cloth.image}" alt="Preview" style="max-width: 100%; border-radius: 4px;">`;
     }
 
     // Update form
@@ -586,7 +588,7 @@ async function loadDashboard() {
         .map(
           (cloth) => `
                 <div style="padding: 10px; border-bottom: 1px solid #ddd; display: flex; gap: 15px;">
-                    <img src="${API_BASE}${cloth.image}" alt="${cloth.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                    <img src="${IMAGE_BASE}${cloth.image}" alt="${cloth.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
                     <div style="flex: 1;">
                         <h4>${cloth.name}</h4>
                         <p style="color: #666; font-size: 13px;">₹${cloth.price} | ${cloth.category}</p>

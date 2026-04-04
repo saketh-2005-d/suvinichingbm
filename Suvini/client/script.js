@@ -1,10 +1,8 @@
 // API Configuration
-// Change this to your deployment URL when going live
-// For local network: http://192.168.0.168:5000
-// For ngrok: https://your-ngrok-url.ngrok.io
-// For deployment: https://your-domain.com
-const API_BASE = "http://192.168.0.168:5000/api";
-const IMAGE_BASE = "http://192.168.0.168:5000";
+// Automatically uses the current domain in production (Vercel) and local dev.
+const ORIGIN_BASE = window.location.origin;
+const API_BASE = `${ORIGIN_BASE}/api`;
+const IMAGE_BASE = ORIGIN_BASE;
 
 let allProducts = [];
 let allWishlist = [];
@@ -86,7 +84,7 @@ async function loadProducts() {
   } catch (error) {
     console.error("Error loading products:", error);
     document.getElementById("productsGrid").innerHTML =
-      '<div class="loading">Failed to load products. Make sure the backend server is running on http://localhost:5000</div>';
+      '<div class="loading">Failed to load products. Please try again in a moment.</div>';
   }
 }
 

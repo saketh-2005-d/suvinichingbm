@@ -26,7 +26,7 @@ router.get("/details/all", async (req, res) => {
       wishlist.map(async (item) => {
         const cloth = await Cloth.findById(item.clothId);
         return { ...item.toObject(), clothDetails: cloth };
-      })
+      }),
     );
 
     res.json(wishlistWithDetails);

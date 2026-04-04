@@ -6,6 +6,11 @@ const Cloth = require("../models/Cloth");
 
 const router = express.Router();
 
+const toClientCloth = (clothDoc) => {
+  const cloth = clothDoc.toObject();
+  return { ...cloth, id: cloth._id };
+};
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -26,7 +31,7 @@ const upload = multer({
 router.get("/", async (req, res) => {
   try {
     const clothes = await Cloth.find({});
-    res.json(clothes);
+    res.json(clothes.map(toClientCloth));
   } catch (err) {
     res
       .status(500)
@@ -41,7 +46,7 @@ router.get("/:id", async (req, res) => {
     if (!cloth) {
       return res.status(404).json({ message: "Cloth not found" });
     }
-    res.json(cloth);
+    res.json(toClientCloth(cloth));
   } catch (err) {
     res
       .status(500)
@@ -77,7 +82,7 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     res
       .status(201)
-      .json({ message: "Cloth added successfully", cloth: newCloth });
+      .json({ message: "Cloth added successfully", cloth: toClientCloth(newCloth) });
   } catch (err) {
     res.status(500).json({ message: "Error adding cloth", error: err.message });
   }
@@ -105,7 +110,7 @@ router.put("/:id", upload.single("image"), async (req, res) => {
 
     await cloth.save();
 
-    res.json({ message: "Cloth updated successfully", cloth });
+    res.json({ message: "Cloth updated successfully", cloth: toClientCloth(cloth) });
   } catch (err) {
     res
       .status(500)
@@ -122,7 +127,7 @@ router.delete("/:id", async (req, res) => {
       return res.status(404).json({ message: "Cloth not found" });
     }
 
-    res.json({ message: "Cloth deleted successfully", cloth });
+    res.json({ message: "Cloth deleted successfully", cloth: toClientCloth(cloth) });
   } catch (err) {
     res
       .status(500)
