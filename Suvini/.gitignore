@@ -12,3 +12,4 @@ uploads/*
 !uploads/.gitkeep
 data/*.json
 package-lock.json
+backend/.env

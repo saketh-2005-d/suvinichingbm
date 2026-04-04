@@ -1,40 +1,14 @@
 const express = require("express");
-const fs = require("fs");
-const path = require("path");
 const { v4: uuidv4 } = require("uuid");
+const Wishlist = require("../models/Wishlist");
+const Cloth = require("../models/Cloth");
 
 const router = express.Router();
 
-const wishlistFile = path.join(__dirname, "../data/wishlist.json");
-const clothesFile = path.join(__dirname, "../data/clothes.json");
-
-// Helper functions
-const readWishlist = () => {
-  try {
-    const data = fs.readFileSync(wishlistFile, "utf8");
-    return JSON.parse(data);
-  } catch (err) {
-    return [];
-  }
-};
-
-const writeWishlist = (wishlist) => {
-  fs.writeFileSync(wishlistFile, JSON.stringify(wishlist, null, 2));
-};
-
-const readClothes = () => {
-  try {
-    const data = fs.readFileSync(clothesFile, "utf8");
-    return JSON.parse(data);
-  } catch (err) {
-    return [];
-  }
-};
-
 // GET all wishlist items
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const wishlist = readWishlist();
+    const wishlist = await Wishlist.find({});
     res.json(wishlist);
   } catch (err) {
     res
@@ -44,15 +18,16 @@ router.get("/", (req, res) => {
 });
 
 // GET wishlist items with full cloth details
-router.get("/details/all", (req, res) => {
+router.get("/details/all", async (req, res) => {
   try {
-    const wishlist = readWishlist();
-    const clothes = readClothes();
+    const wishlist = await Wishlist.find({});
 
-    const wishlistWithDetails = wishlist.map((item) => {
-      const cloth = clothes.find((c) => c.id === item.clothId);
-      return { ...item, clothDetails: cloth };
-    });
+    const wishlistWithDetails = await Promise.all(
+      wishlist.map(async (item) => {
+        const cloth = await Cloth.findById(item.clothId);
+        return { ...item.toObject(), clothDetails: cloth };
+      })
+    );
 
     res.json(wishlistWithDetails);
   } catch (err) {
@@ -63,7 +38,7 @@ router.get("/details/all", (req, res) => {
 });
 
 // POST add to wishlist
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { clothId } = req.body;
 
@@ -71,28 +46,26 @@ router.post("/", (req, res) => {
       return res.status(400).json({ message: "Cloth ID is required" });
     }
 
-    const clothes = readClothes();
-    const cloth = clothes.find((c) => c.id === clothId);
+    const cloth = await Cloth.findById(clothId);
 
     if (!cloth) {
       return res.status(404).json({ message: "Cloth not found" });
     }
 
-    const wishlist = readWishlist();
-
     // Check if already in wishlist
-    if (wishlist.some((item) => item.clothId === clothId)) {
+    const existing = await Wishlist.findOne({ clothId });
+    if (existing) {
       return res.status(400).json({ message: "Already in wishlist" });
     }
 
-    const wishlistItem = {
-      id: uuidv4(),
+    const wishlistItem = new Wishlist({
       clothId,
-      addedAt: new Date().toISOString(),
-    };
+      name: cloth.name,
+      price: cloth.price,
+      image: cloth.image,
+    });
 
-    wishlist.push(wishlistItem);
-    writeWishlist(wishlist);
+    await wishlistItem.save();
 
     res.status(201).json({ message: "Added to wishlist", wishlistItem });
   } catch (err) {
@@ -103,19 +76,15 @@ router.post("/", (req, res) => {
 });
 
 // DELETE from wishlist
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
-    const wishlist = readWishlist();
-    const itemIndex = wishlist.findIndex((item) => item.id === req.params.id);
+    const item = await Wishlist.findByIdAndDelete(req.params.id);
 
-    if (itemIndex === -1) {
+    if (!item) {
       return res.status(404).json({ message: "Wishlist item not found" });
     }
 
-    const deletedItem = wishlist.splice(itemIndex, 1);
-    writeWishlist(wishlist);
-
-    res.json({ message: "Removed from wishlist", item: deletedItem[0] });
+    res.json({ message: "Removed from wishlist", item });
   } catch (err) {
     res
       .status(500)
@@ -124,21 +93,17 @@ router.delete("/:id", (req, res) => {
 });
 
 // DELETE from wishlist by clothId
-router.delete("/cloth/:clothId", (req, res) => {
+router.delete("/cloth/:clothId", async (req, res) => {
   try {
-    const wishlist = readWishlist();
-    const itemIndex = wishlist.findIndex(
-      (item) => item.clothId === req.params.clothId,
-    );
+    const item = await Wishlist.findOneAndDelete({
+      clothId: req.params.clothId,
+    });
 
-    if (itemIndex === -1) {
+    if (!item) {
       return res.status(404).json({ message: "Cloth not found in wishlist" });
     }
 
-    const deletedItem = wishlist.splice(itemIndex, 1);
-    writeWishlist(wishlist);
-
-    res.json({ message: "Removed from wishlist", item: deletedItem[0] });
+    res.json({ message: "Removed from wishlist", item });
   } catch (err) {
     res
       .status(500)

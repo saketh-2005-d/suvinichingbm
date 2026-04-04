@@ -1,19 +1,15 @@
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
+const Cloth = require("../models/Cloth");
 
 const router = express.Router();
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, "../uploads");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
+    cb(null, path.join(__dirname, "../uploads"));
   },
   filename: (req, file, cb) => {
     const uniqueName = `${Date.now()}-${uuidv4()}-${file.originalname}`;
@@ -26,32 +22,10 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 });
 
-const clothesFile = path.join(__dirname, "../data/clothes.json");
-
-// Helper function to read clothes
-const readClothes = () => {
-  try {
-    const data = fs.readFileSync(clothesFile, "utf8");
-    return JSON.parse(data);
-  } catch (err) {
-    console.error("Error reading clothes file:", err);
-    return [];
-  }
-};
-
-// Helper function to write clothes
-const writeClothes = (clothes) => {
-  try {
-    fs.writeFileSync(clothesFile, JSON.stringify(clothes, null, 2));
-  } catch (err) {
-    console.error("Error writing clothes file:", err);
-  }
-};
-
 // GET all clothes (for client)
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const clothes = readClothes();
+    const clothes = await Cloth.find({});
     res.json(clothes);
   } catch (err) {
     res
@@ -61,10 +35,9 @@ router.get("/", (req, res) => {
 });
 
 // GET single cloth by ID
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const clothes = readClothes();
-    const cloth = clothes.find((c) => c.id === req.params.id);
+    const cloth = await Cloth.findById(req.params.id);
     if (!cloth) {
       return res.status(404).json({ message: "Cloth not found" });
     }
@@ -77,7 +50,7 @@ router.get("/:id", (req, res) => {
 });
 
 // POST add new cloth (for admin)
-router.post("/", upload.single("image"), (req, res) => {
+router.post("/", upload.single("image"), async (req, res) => {
   try {
     const { name, description, price, size, color, category, stock } = req.body;
 
@@ -87,9 +60,9 @@ router.post("/", upload.single("image"), (req, res) => {
         .json({ message: "Name, price, and image are required" });
     }
 
-    const clothes = readClothes();
-    const newCloth = {
-      id: uuidv4(),
+    const clothId = uuidv4();
+    const newCloth = new Cloth({
+      _id: clothId,
       name,
       description: description || "",
       price: parseFloat(price),
@@ -98,12 +71,9 @@ router.post("/", upload.single("image"), (req, res) => {
       category: category || "Cotton",
       stock: stock || "In Stock",
       image: `/uploads/${req.file.filename}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    });
 
-    clothes.push(newCloth);
-    writeClothes(clothes);
+    await newCloth.save();
 
     res
       .status(201)
@@ -114,17 +84,15 @@ router.post("/", upload.single("image"), (req, res) => {
 });
 
 // PUT update cloth (for admin)
-router.put("/:id", upload.single("image"), (req, res) => {
+router.put("/:id", upload.single("image"), async (req, res) => {
   try {
-    const clothes = readClothes();
-    const clothIndex = clothes.findIndex((c) => c.id === req.params.id);
+    const cloth = await Cloth.findById(req.params.id);
 
-    if (clothIndex === -1) {
+    if (!cloth) {
       return res.status(404).json({ message: "Cloth not found" });
     }
 
     const { name, description, price, size, color, category, stock } = req.body;
-    const cloth = clothes[clothIndex];
 
     if (name) cloth.name = name;
     if (description) cloth.description = description;
@@ -135,10 +103,7 @@ router.put("/:id", upload.single("image"), (req, res) => {
     if (stock) cloth.stock = stock;
     if (req.file) cloth.image = `/uploads/${req.file.filename}`;
 
-    cloth.updatedAt = new Date().toISOString();
-
-    clothes[clothIndex] = cloth;
-    writeClothes(clothes);
+    await cloth.save();
 
     res.json({ message: "Cloth updated successfully", cloth });
   } catch (err) {
@@ -149,19 +114,15 @@ router.put("/:id", upload.single("image"), (req, res) => {
 });
 
 // DELETE cloth (for admin)
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
-    const clothes = readClothes();
-    const clothIndex = clothes.findIndex((c) => c.id === req.params.id);
+    const cloth = await Cloth.findByIdAndDelete(req.params.id);
 
-    if (clothIndex === -1) {
+    if (!cloth) {
       return res.status(404).json({ message: "Cloth not found" });
     }
 
-    const deletedCloth = clothes.splice(clothIndex, 1);
-    writeClothes(clothes);
-
-    res.json({ message: "Cloth deleted successfully", cloth: deletedCloth[0] });
+    res.json({ message: "Cloth deleted successfully", cloth });
   } catch (err) {
     res
       .status(500)
