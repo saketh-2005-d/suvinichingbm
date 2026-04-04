@@ -17,6 +17,12 @@ const API_BASE =
 const ADMIN_EMAIL =
   import.meta.env.VITE_ADMIN_EMAIL || "suvini.clothing@gmail.com";
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "surekhasravan";
+const CLIENT_LOGIN_REQUIRED =
+  String(import.meta.env.VITE_CLIENT_LOGIN_REQUIRED || "false").toLowerCase() ===
+  "true";
+const CLIENT_LOGIN_EMAIL = import.meta.env.VITE_CLIENT_EMAIL || "";
+const CLIENT_LOGIN_PASSWORD = import.meta.env.VITE_CLIENT_PASSWORD || "";
+const CLIENT_SESSION_KEY = "suviniClientSession";
 
 function getImageUrl(image) {
   if (!image) return "https://via.placeholder.com/320x380?text=No+Image";
@@ -54,6 +60,21 @@ function ShopPage() {
   const [orderPhone, setOrderPhone] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [clientSession, setClientSession] = useState(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    try {
+      const raw = window.localStorage.getItem(CLIENT_SESSION_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [clientEmailInput, setClientEmailInput] = useState("");
+  const [clientPasswordInput, setClientPasswordInput] = useState("");
+  const [clientLoginError, setClientLoginError] = useState("");
 
   const wishlistByClothId = useMemo(
     () => new Set(wishlist.map((item) => item.clothId)),
@@ -129,6 +150,21 @@ function ShopPage() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (clientSession) {
+      window.localStorage.setItem(CLIENT_SESSION_KEY, JSON.stringify(clientSession));
+      if (!orderName) {
+        setOrderName(clientSession.name || "");
+      }
+    } else {
+      window.localStorage.removeItem(CLIENT_SESSION_KEY);
+    }
+  }, [clientSession]);
+
   async function toggleWishlist(productId) {
     try {
       if (wishlistByClothId.has(productId)) {
@@ -197,6 +233,76 @@ function ShopPage() {
     return new Intl.NumberFormat("en-IN").format(Number(value || 0));
   }
 
+  function handleClientLogin(event) {
+    event.preventDefault();
+    setClientLoginError("");
+
+    const email = clientEmailInput.trim().toLowerCase();
+    const password = clientPasswordInput;
+
+    if (!email || !password) {
+      setClientLoginError("Enter email and password to continue.");
+      return;
+    }
+
+    const envCredentialsConfigured =
+      CLIENT_LOGIN_EMAIL.trim() !== "" && CLIENT_LOGIN_PASSWORD !== "";
+
+    if (
+      envCredentialsConfigured &&
+      (email !== CLIENT_LOGIN_EMAIL.trim().toLowerCase() ||
+        password !== CLIENT_LOGIN_PASSWORD)
+    ) {
+      setClientLoginError("Invalid client credentials.");
+      return;
+    }
+
+    const name = email.split("@")[0] || "Customer";
+    setClientSession({ email, name, loggedInAt: new Date().toISOString() });
+    setClientPasswordInput("");
+  }
+
+  function handleClientLogout() {
+    setClientSession(null);
+  }
+
+  if (CLIENT_LOGIN_REQUIRED && !clientSession) {
+    return (
+      <div className="page client-auth-wrap">
+        <section className="card client-auth">
+          <p className="chip soft">Client Access</p>
+          <h2>Sign In to Enter Store</h2>
+          <p className="muted">
+            Client login is enabled for this website. Please sign in to browse products.
+          </p>
+          <form onSubmit={handleClientLogin} className="client-auth-form">
+            <input
+              value={clientEmailInput}
+              onChange={(e) => setClientEmailInput(e.target.value)}
+              placeholder="Client email"
+              type="email"
+            />
+            <input
+              value={clientPasswordInput}
+              onChange={(e) => setClientPasswordInput(e.target.value)}
+              placeholder="Password"
+              type="password"
+            />
+            <button className="btn" type="submit">
+              Continue to Store
+            </button>
+          </form>
+          {clientLoginError ? (
+            <p className="status error">{clientLoginError}</p>
+          ) : null}
+          <a className="ghost-link alt" href="/admin">
+            Admin Login
+          </a>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="page storefront">
       <div className="announcement-bar">
@@ -220,9 +326,17 @@ function ShopPage() {
           <a href="#checkout">Checkout</a>
         </nav>
         <div className="store-nav-actions">
+          {CLIENT_LOGIN_REQUIRED && clientSession ? (
+            <span className="customer-chip">Hi, {clientSession.name}</span>
+          ) : null}
           <button className="wishlist-pill" onClick={scrollToCollection}>
             Wishlist {selectedWishlistItems.length}
           </button>
+          {CLIENT_LOGIN_REQUIRED && clientSession ? (
+            <button className="btn secondary" onClick={handleClientLogout}>
+              Logout
+            </button>
+          ) : null}
           <a className="btn secondary" href="/admin">
             Admin
           </a>

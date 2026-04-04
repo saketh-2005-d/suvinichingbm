@@ -115,6 +115,16 @@ body {
   align-items: center;
 }
 
+.customer-chip {
+  border: 1px solid #efc89e;
+  background: #fff3e4;
+  color: #7e431f;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.82rem;
+}
+
 .wishlist-pill {
   border: 1px solid #efc89e;
   background: #fff3e6;
@@ -681,6 +691,33 @@ textarea {
   min-height: 88vh;
   display: grid;
   place-items: center;
+}
+
+.client-auth-wrap {
+  min-height: 88vh;
+  display: grid;
+  place-items: center;
+}
+
+.client-auth {
+  width: min(460px, 94vw);
+  padding: 1.2rem;
+  display: grid;
+  gap: 0.8rem;
+  text-align: center;
+}
+
+.client-auth h2 {
+  margin: 0;
+}
+
+.client-auth-form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ghost-link.alt {
+  color: #8b4e2b;
 }
 
 .admin-login {
