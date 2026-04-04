@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "suvini.clothing@gmail.com";
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const ADMIN_EMAIL =
+  import.meta.env.VITE_ADMIN_EMAIL || "suvini.clothing@gmail.com";
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "surekhasravan";
 
 function getImageUrl(image) {
@@ -43,7 +45,9 @@ function ShopPage() {
 
   const filtered = useMemo(() => {
     return products.filter((product) => {
-      const bySearch = product.name?.toLowerCase().includes(search.toLowerCase());
+      const bySearch = product.name
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
       const byCategory = !category || product.category === category;
       return bySearch && byCategory;
     });
@@ -51,7 +55,10 @@ function ShopPage() {
 
   const selectedWishlistItems = useMemo(() => {
     return wishlist
-      .map((item) => ({ ...item, clothDetails: products.find((p) => p.id === item.clothId) }))
+      .map((item) => ({
+        ...item,
+        clothDetails: products.find((p) => p.id === item.clothId),
+      }))
       .filter((item) => item.clothDetails);
   }, [wishlist, products]);
 
@@ -61,6 +68,23 @@ function ShopPage() {
       0,
     );
   }, [selectedWishlistItems]);
+
+  const spotlightProduct = useMemo(() => {
+    if (filtered.length > 0) {
+      return filtered[0];
+    }
+    return products[0] || null;
+  }, [filtered, products]);
+
+  const latestProducts = useMemo(() => {
+    return [...products]
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime(),
+      )
+      .slice(0, 4);
+  }, [products]);
 
   async function loadData() {
     try {
@@ -73,7 +97,9 @@ function ShopPage() {
       setProducts(productsData);
       setWishlist(wishlistData);
     } catch (err) {
-      setError("Failed to load products. Check backend deployment and CORS settings.");
+      setError(
+        "Failed to load products. Check backend deployment and CORS settings.",
+      );
     } finally {
       setLoading(false);
     }
@@ -140,126 +166,256 @@ function ShopPage() {
     }
   }
 
+  function scrollToCollection() {
+    const section = document.getElementById("collection");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function formatPrice(value) {
+    return new Intl.NumberFormat("en-IN").format(Number(value || 0));
+  }
+
   return (
-    <div className="page">
-      <div className="topbar card">
-        <div>
-          <strong>SUVINI</strong>
-          <span className="muted topbar-sub"> Everyday festive wear</span>
+    <div className="page storefront">
+      <div className="announcement-bar">
+        <p>
+          Free style support on WhatsApp • New arrivals updated daily • COD
+          support on request
+        </p>
+      </div>
+
+      <header className="store-nav card">
+        <div className="brand-mark">
+          <span className="brand-badge">S</span>
+          <div>
+            <h2>SUVINI</h2>
+            <p>Indian wear studio</p>
+          </div>
         </div>
-        <div className="topbar-actions">
-          <span className="pill">{products.length} products</span>
-          <span className="pill">{selectedWishlistItems.length} wishlist</span>
+        <nav>
+          <a href="#collection">Shop</a>
+          <a href="#latest">New In</a>
+          <a href="#checkout">Checkout</a>
+        </nav>
+        <div className="store-nav-actions">
+          <button className="wishlist-pill" onClick={scrollToCollection}>
+            Wishlist {selectedWishlistItems.length}
+          </button>
           <a className="btn secondary" href="/admin">
             Admin
           </a>
         </div>
-      </div>
-
-      <header className="hero">
-        <div className="hero-inner">
-          <p className="chip">Suvini Clothing</p>
-          <h1>Modern Indianwear, Ready to Order</h1>
-          <p>
-            Fresh catalog, quick WhatsApp checkout, and a smooth mobile-first shopping
-            experience.
-          </p>
-          <a className="ghost-link" href="/admin">
-            Open Admin Panel
-          </a>
-        </div>
       </header>
 
-      <section className="stats-row">
-        <article className="card stat-card">
-          <p className="stat-title">In Catalog</p>
-          <h3>{products.length}</h3>
-        </article>
-        <article className="card stat-card">
-          <p className="stat-title">Wishlist Items</p>
-          <h3>{selectedWishlistItems.length}</h3>
-        </article>
-        <article className="card stat-card">
-          <p className="stat-title">Wishlist Total</p>
-          <h3>Rs {wishlistTotal}</h3>
-        </article>
-      </section>
-
-      <section className="toolbar card">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by product name"
-        />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">All categories</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-      </section>
-
-      <section className="quick-cats">
-        <button className={`chip-btn ${category === "" ? "active" : ""}`} onClick={() => setCategory("")}>All</button>
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            className={`chip-btn ${category === cat ? "active" : ""}`}
-            onClick={() => setCategory(cat)}
-          >
-            {cat}
-          </button>
-        ))}
-      </section>
-
-      {loading ? <p className="status">Loading products...</p> : null}
-      {error ? <p className="status error">{error}</p> : null}
-
-      <section className="grid">
-        {filtered.map((product) => {
-          const inWishlist = wishlistByClothId.has(product.id);
-          const soldOut = product.stock === "Sold Out";
-          return (
-            <article className="product card" key={product.id}>
-              <img src={getImageUrl(product.image)} alt={product.name} />
-              <div className="product-body">
-                <h3>{product.name}</h3>
-                <p className="muted">{product.category || "General"}</p>
-                <p className="price">Rs {product.price}</p>
-                <p className={`stock ${soldOut ? "out" : "in"}`}>
-                  {product.stock || "In Stock"}
+      <section className="hero hero-shop">
+        <div className="hero-copy">
+          <p className="chip">Summer Edit 2026</p>
+          <h1>Crafted Fits for Every Celebration</h1>
+          <p>
+            Explore handpicked kurtis, sets, and occasion-ready looks with easy
+            WhatsApp ordering. Browse, shortlist, and place your order in
+            minutes.
+          </p>
+          <div className="hero-actions">
+            <button className="btn" onClick={scrollToCollection}>
+              Shop Collection
+            </button>
+            <a className="btn secondary" href="#checkout">
+              Quick Checkout
+            </a>
+          </div>
+        </div>
+        <div className="spotlight card">
+          {spotlightProduct ? (
+            <>
+              <img
+                src={getImageUrl(spotlightProduct.image)}
+                alt={spotlightProduct.name}
+              />
+              <div className="spotlight-content">
+                <p className="chip soft">Featured Pick</p>
+                <h3>{spotlightProduct.name}</h3>
+                <p className="muted">
+                  {spotlightProduct.category || "Signature Collection"}
                 </p>
-                <div className="actions">
-                  <button onClick={() => setSelected(product)} className="btn secondary">
-                    Details
-                  </button>
-                  <button
-                    className="btn"
-                    disabled={soldOut}
-                    onClick={() => toggleWishlist(product.id)}
-                  >
-                    {inWishlist ? "Remove" : "Wishlist"}
-                  </button>
-                </div>
+                <p className="price">
+                  Rs {formatPrice(spotlightProduct.price)}
+                </p>
+                <button
+                  className="btn"
+                  onClick={() => setSelected(spotlightProduct)}
+                >
+                  View Details
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="spotlight-empty">
+              <h3>Collection loading</h3>
+              <p className="muted">
+                Add products from admin and your storefront will appear here.
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="benefits-row">
+        <article className="card benefit-item">
+          <p>Exclusive Drops</p>
+          <strong>{products.length}+ curated products</strong>
+        </article>
+        <article className="card benefit-item">
+          <p>Fast Assistance</p>
+          <strong>Direct WhatsApp order flow</strong>
+        </article>
+        <article className="card benefit-item">
+          <p>Flexible Styles</p>
+          <strong>Sizes and shades for every mood</strong>
+        </article>
+      </section>
+
+      <section className="latest-strip" id="latest">
+        <div className="section-head">
+          <h2>New Arrivals</h2>
+          <p>Just landed pieces ready to be added to your wishlist.</p>
+        </div>
+        <div className="latest-grid">
+          {latestProducts.map((product) => (
+            <article
+              key={product.id}
+              className="latest-card card"
+              onClick={() => setSelected(product)}
+            >
+              <img src={getImageUrl(product.image)} alt={product.name} />
+              <div>
+                <h4>{product.name}</h4>
+                <p className="muted">Rs {formatPrice(product.price)}</p>
               </div>
             </article>
-          );
-        })}
+          ))}
+        </div>
       </section>
 
-      <section className="wishlist card">
-        <h2>Wishlist Checkout</h2>
-        <p className="muted">Items in wishlist: {selectedWishlistItems.length}</p>
+      <section id="collection" className="collection-wrap">
+        <div className="section-head">
+          <h2>Shop Collection</h2>
+          <p>
+            Filter by category, inspect details, and save favorites for
+            checkout.
+          </p>
+        </div>
+
+        <section className="toolbar card">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by product name"
+          />
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">All categories</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </section>
+
+        <section className="quick-cats">
+          <button
+            className={`chip-btn ${category === "" ? "active" : ""}`}
+            onClick={() => setCategory("")}
+          >
+            All
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`chip-btn ${category === cat ? "active" : ""}`}
+              onClick={() => setCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </section>
+
+        {loading ? <p className="status">Loading products...</p> : null}
+        {error ? <p className="status error">{error}</p> : null}
+
+        <p className="results-note">Showing {filtered.length} products</p>
+
+        <section className="grid product-grid">
+          {filtered.map((product) => {
+            const inWishlist = wishlistByClothId.has(product.id);
+            const soldOut = product.stock === "Sold Out";
+            return (
+              <article className="product card" key={product.id}>
+                <div className="product-media">
+                  <img src={getImageUrl(product.image)} alt={product.name} />
+                  <span className={`stock-tag ${soldOut ? "out" : "in"}`}>
+                    {product.stock || "In Stock"}
+                  </span>
+                </div>
+                <div className="product-body">
+                  <p className="muted product-category">
+                    {product.category || "General"}
+                  </p>
+                  <h3>{product.name}</h3>
+                  <p className="price">Rs {formatPrice(product.price)}</p>
+                  <div className="actions">
+                    <button
+                      onClick={() => setSelected(product)}
+                      className="btn secondary"
+                    >
+                      Details
+                    </button>
+                    <button
+                      className="btn"
+                      disabled={soldOut}
+                      onClick={() => toggleWishlist(product.id)}
+                    >
+                      {inWishlist ? "Remove" : "Add"}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      </section>
+
+      <section id="checkout" className="wishlist card">
+        <div className="section-head compact">
+          <h2>Wishlist Checkout</h2>
+          <p>
+            Shortlist your pieces and place your order directly on WhatsApp.
+          </p>
+        </div>
+        <div className="checkout-meta">
+          <p className="muted">Items: {selectedWishlistItems.length}</p>
+          <p className="checkout-total">
+            Total: Rs {formatPrice(wishlistTotal)}
+          </p>
+        </div>
         {selectedWishlistItems.length > 0 ? (
           <div className="wishlist-list">
             {selectedWishlistItems.map((item) => (
               <div key={item._id || item.id} className="wishlist-item">
-                <img src={getImageUrl(item.clothDetails.image)} alt={item.clothDetails.name} />
+                <img
+                  src={getImageUrl(item.clothDetails.image)}
+                  alt={item.clothDetails.name}
+                />
                 <div>
                   <p className="wishlist-name">{item.clothDetails.name}</p>
-                  <p className="muted">Rs {item.clothDetails.price}</p>
+                  <p className="muted">
+                    Rs {formatPrice(item.clothDetails.price)}
+                  </p>
                 </div>
               </div>
             ))}
@@ -280,7 +436,6 @@ function ShopPage() {
             Order on WhatsApp
           </button>
         </div>
-        <p className="checkout-total">Checkout Total: Rs {wishlistTotal}</p>
       </section>
 
       {selected ? (
@@ -288,9 +443,12 @@ function ShopPage() {
           <div className="modal card" onClick={(e) => e.stopPropagation()}>
             <img src={getImageUrl(selected.image)} alt={selected.name} />
             <h3>{selected.name}</h3>
-            <p>{selected.description || "Premium quality piece from Suvini."}</p>
+            <p>
+              {selected.description || "Premium quality piece from Suvini."}
+            </p>
             <p className="muted">
-              Size: {selected.size || "All"} | Color: {selected.color || "Various"}
+              Size: {selected.size || "All"} | Color:{" "}
+              {selected.color || "Various"}
             </p>
             <button className="btn" onClick={() => setSelected(null)}>
               Close
@@ -361,7 +519,9 @@ function AdminPage() {
 
     try {
       const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => formData.append(key, value));
+      Object.entries(form).forEach(([key, value]) =>
+        formData.append(key, value),
+      );
       if (imageFile) formData.append("image", imageFile);
 
       if (!editingId && !imageFile) {
@@ -414,7 +574,11 @@ function AdminPage() {
         <form className="card admin-login" onSubmit={login}>
           <h2>Admin Login</h2>
           <p className="muted">Use credentials from frontend env variables.</p>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
           <input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -464,7 +628,9 @@ function AdminPage() {
           />
           <input
             value={form.category}
-            onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
+            onChange={(e) =>
+              setForm((p) => ({ ...p, category: e.target.value }))
+            }
             placeholder="Category"
           />
           <input
@@ -487,10 +653,16 @@ function AdminPage() {
           </select>
           <textarea
             value={form.description}
-            onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+            onChange={(e) =>
+              setForm((p) => ({ ...p, description: e.target.value }))
+            }
             placeholder="Description"
           />
-          <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+          />
           <div className="actions">
             <button className="btn" type="submit">
               {editingId ? "Update" : "Add Product"}
@@ -528,14 +700,22 @@ function AdminPage() {
             <div className="product-body">
               <h3>{product.name}</h3>
               <p className="muted">Rs {product.price}</p>
-              <p className={`stock ${product.stock === "Sold Out" ? "out" : "in"}`}>
+              <p
+                className={`stock ${product.stock === "Sold Out" ? "out" : "in"}`}
+              >
                 {product.stock || "In Stock"}
               </p>
               <div className="actions">
-                <button className="btn secondary" onClick={() => startEdit(product)}>
+                <button
+                  className="btn secondary"
+                  onClick={() => startEdit(product)}
+                >
                   Edit
                 </button>
-                <button className="btn" onClick={() => removeProduct(product.id)}>
+                <button
+                  className="btn"
+                  onClick={() => removeProduct(product.id)}
+                >
                   Delete
                 </button>
               </div>

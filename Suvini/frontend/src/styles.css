@@ -22,8 +22,7 @@ body {
   background:
     radial-gradient(circle at 15% -10%, #f8c37a 0%, transparent 45%),
     radial-gradient(circle at 90% 10%, #f99e80 0%, transparent 40%),
-    linear-gradient(180deg, #f7efe6, #f3eee7 30%),
-    var(--bg);
+    linear-gradient(180deg, #f7efe6, #f3eee7 30%), var(--bg);
 }
 
 .page {
@@ -70,7 +69,8 @@ body {
   overflow: hidden;
   background:
     linear-gradient(130deg, rgba(16, 9, 6, 0.92), rgba(62, 31, 18, 0.88)),
-    url("https://images.unsplash.com/photo-1554412933-514a83d2f3c8?auto=format&fit=crop&w=1600&q=80") center/cover;
+    url("https://images.unsplash.com/photo-1554412933-514a83d2f3c8?auto=format&fit=crop&w=1600&q=80")
+      center/cover;
   color: #fff;
   margin-bottom: 1.25rem;
   box-shadow: 0 24px 45px rgba(70, 33, 20, 0.22);
@@ -79,7 +79,8 @@ body {
 .admin-hero {
   background:
     linear-gradient(130deg, rgba(26, 16, 11, 0.9), rgba(84, 36, 24, 0.85)),
-    url("https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1600&q=80") center/cover;
+    url("https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1600&q=80")
+      center/cover;
 }
 
 .hero-inner {
@@ -181,7 +182,9 @@ body {
 
 .product {
   overflow: hidden;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .product:hover {
@@ -249,7 +252,9 @@ textarea {
   color: #fff;
   cursor: pointer;
   padding: 0.55rem 0.9rem;
-  transition: transform 0.15s ease, opacity 0.2s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.2s ease;
 }
 
 .btn:hover {
