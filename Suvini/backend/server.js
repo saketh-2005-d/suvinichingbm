@@ -53,8 +53,19 @@ app.get("/api/health", (req, res) => {
   res.json({ message: "Server is running", status: "OK" });
 });
 
-app.listen(PORT, () => {
-  console.log(
-    `✅ Suvini Clothing Backend Server running on http://localhost:${PORT}`,
-  );
+// Default fallback route
+app.use((req, res) => {
+  res.status(404).json({ error: "Not Found" });
 });
+
+// Only listen locally (not on Vercel)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(
+      `✅ Suvini Clothing Backend Server running on http://localhost:${PORT}`,
+    );
+  });
+}
+
+// Export for Vercel
+module.exports = app;
