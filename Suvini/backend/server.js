@@ -33,6 +33,22 @@ app.options("*", cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Fail fast for API routes that require DB when MongoDB is disconnected.
+app.use("/api", (req, res, next) => {
+  if (req.path === "/health") {
+    return next();
+  }
+
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({
+      message:
+        "Database not connected. Check MongoDB Atlas Network Access (IP whitelist) and MONGODB_URI in Vercel.",
+    });
+  }
+
+  return next();
+});
+
 // Routes
 app.use("/api/clothes", clothesRoutes);
 app.use("/api/wishlist", wishlistRoutes);

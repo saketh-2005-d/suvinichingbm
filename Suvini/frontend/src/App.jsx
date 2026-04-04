@@ -28,8 +28,18 @@ function getImageUrl(image) {
 async function apiFetch(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, options);
   if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || "Request failed");
+    const contentType = response.headers.get("content-type") || "";
+    let message = `Request failed (${response.status})`;
+
+    if (contentType.includes("application/json")) {
+      const data = await response.json();
+      message = data.error || data.message || message;
+    } else {
+      const text = await response.text();
+      message = text || message;
+    }
+
+    throw new Error(message);
   }
   return response.json();
 }
@@ -109,9 +119,7 @@ function ShopPage() {
       setProducts(productsData);
       setWishlist(wishlistData);
     } catch (err) {
-      setError(
-        "Failed to load products. Check backend deployment and CORS settings.",
-      );
+      setError(err.message || "Failed to load products.");
     } finally {
       setLoading(false);
     }
@@ -369,7 +377,8 @@ function ShopPage() {
                 <div className="empty-state card">
                   <h3>No products found</h3>
                   <p className="muted">
-                    Try another search or clear category filters to see more products.
+                    Try another search or clear category filters to see more
+                    products.
                   </p>
                 </div>
               ) : null}
@@ -379,7 +388,10 @@ function ShopPage() {
                 return (
                   <article className="product card" key={product.id}>
                     <div className="product-media">
-                      <img src={getImageUrl(product.image)} alt={product.name} />
+                      <img
+                        src={getImageUrl(product.image)}
+                        alt={product.name}
+                      />
                       <span className={`stock-tag ${soldOut ? "out" : "in"}`}>
                         {product.stock || "In Stock"}
                       </span>
@@ -421,7 +433,9 @@ function ShopPage() {
             </div>
             <div className="checkout-meta">
               <p className="muted">Items: {selectedWishlistItems.length}</p>
-              <p className="checkout-total">Total: Rs {formatPrice(wishlistTotal)}</p>
+              <p className="checkout-total">
+                Total: Rs {formatPrice(wishlistTotal)}
+              </p>
             </div>
             {selectedWishlistItems.length > 0 ? (
               <div className="wishlist-list">
@@ -433,13 +447,17 @@ function ShopPage() {
                     />
                     <div>
                       <p className="wishlist-name">{item.clothDetails.name}</p>
-                      <p className="muted">Rs {formatPrice(item.clothDetails.price)}</p>
+                      <p className="muted">
+                        Rs {formatPrice(item.clothDetails.price)}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="muted">Your wishlist is empty. Add items to continue.</p>
+              <p className="muted">
+                Your wishlist is empty. Add items to continue.
+              </p>
             )}
             <div className="order-row order-row-stack">
               <input
@@ -507,7 +525,9 @@ function AdminPage() {
 
   useEffect(() => {
     if (loggedIn) {
-      loadProducts().catch(() => setMessage("Failed to load products"));
+      loadProducts().catch((err) =>
+        setMessage(err.message || "Failed to load products"),
+      );
     }
   }, [loggedIn]);
 
@@ -573,7 +593,7 @@ function AdminPage() {
       setMessage("Saved successfully");
       await loadProducts();
     } catch (err) {
-      setMessage("Failed to save product");
+      setMessage(err.message || "Failed to save product");
     }
   }
 
@@ -586,7 +606,7 @@ function AdminPage() {
       setMessage("Deleted successfully");
       await loadProducts();
     } catch (err) {
-      setMessage("Delete failed");
+      setMessage(err.message || "Delete failed");
     }
   }
 
