@@ -1209,11 +1209,6 @@ function ClientLoginPage() {
 
     if (readAdminSession()) {
       window.location.replace("/admin");
-      return;
-    }
-
-    if (!WEBSITE_LOGIN_REQUIRED || readClientSession()) {
-      window.location.replace("/");
     }
   }, []);
 
@@ -1247,10 +1242,6 @@ function ClientLoginPage() {
       <section className="card client-auth">
         <p className="chip soft">Welcome</p>
         <h2>Sign In to Continue</h2>
-        <p className="muted">
-          Use one shared portal. Admin credentials open admin control, and all
-          other accounts open the store.
-        </p>
         <form onSubmit={handleClientLogin} className="client-auth-form">
           <input
             value={username}
