@@ -28,8 +28,15 @@ if (mongoUri) {
 }
 
 // Middleware
-app.use(cors());
-app.options("*", cors());
+const corsOptions = {
+  origin: (_origin, callback) => callback(null, true),
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

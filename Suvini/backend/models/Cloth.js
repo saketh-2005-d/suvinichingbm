@@ -11,8 +11,12 @@ const clothSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    offerPrice: Number,
     category: String,
-    color: String,
+    color: {
+      type: [String],
+      default: [],
+    },
     size: String,
     description: String,
     image: String,

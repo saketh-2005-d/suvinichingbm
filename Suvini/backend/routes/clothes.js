@@ -10,9 +10,50 @@ const {
 
 const router = express.Router();
 
+const toValidOfferPrice = (offerPrice, referencePrice) => {
+  const parsed = Number(offerPrice);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return undefined;
+  }
+
+  if (Number.isFinite(referencePrice) && parsed >= referencePrice) {
+    return undefined;
+  }
+
+  return parsed;
+};
+
+const normalizeColorOptions = (colorValue) => {
+  if (Array.isArray(colorValue)) {
+    return Array.from(
+      new Set(
+        colorValue.map((color) => String(color || "").trim()).filter(Boolean),
+      ),
+    );
+  }
+
+  const raw = String(colorValue || "").trim();
+  if (!raw) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      raw
+        .split(",")
+        .map((color) => color.trim())
+        .filter(Boolean),
+    ),
+  );
+};
+
 const toClientCloth = (clothDoc) => {
   const cloth = clothDoc.toObject();
-  return { ...cloth, id: cloth._id };
+  return {
+    ...cloth,
+    color: normalizeColorOptions(cloth.color),
+    id: cloth._id,
+  };
 };
 
 // Configure multer for file uploads
@@ -59,13 +100,29 @@ router.get("/:id", async (req, res) => {
 // POST add new cloth (for admin)
 router.post("/", upload.single("image"), async (req, res) => {
   try {
-    const { name, description, price, size, color, category, stock } = req.body;
+    const {
+      name,
+      description,
+      price,
+      offerPrice,
+      size,
+      color,
+      category,
+      stock,
+    } = req.body;
 
     if (!name || !price || !req.file) {
       return res
         .status(400)
         .json({ message: "Name, price, and image are required" });
     }
+
+    const parsedPrice = Number(price);
+    if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+      return res.status(400).json({ message: "Price must be a valid number" });
+    }
+
+    const parsedOfferPrice = toValidOfferPrice(offerPrice, parsedPrice);
 
     const uploadedImage = await uploadBufferToCloudinary(req.file.buffer, {
       mimeType: req.file.mimetype,
@@ -78,9 +135,10 @@ router.post("/", upload.single("image"), async (req, res) => {
       _id: clothId,
       name,
       description: description || "",
-      price: parseFloat(price),
+      price: parsedPrice,
+      offerPrice: parsedOfferPrice,
       size: size || "All Sizes",
-      color: color || "",
+      color: normalizeColorOptions(color),
       category: category || "Cotton",
       stock: stock || "In Stock",
       image: uploadedImage.secureUrl,
@@ -89,12 +147,10 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     await newCloth.save();
 
-    res
-      .status(201)
-      .json({
-        message: "Cloth added successfully",
-        cloth: toClientCloth(newCloth),
-      });
+    res.status(201).json({
+      message: "Cloth added successfully",
+      cloth: toClientCloth(newCloth),
+    });
   } catch (err) {
     res.status(500).json({ message: "Error adding cloth", error: err.message });
   }
@@ -109,13 +165,44 @@ router.put("/:id", upload.single("image"), async (req, res) => {
       return res.status(404).json({ message: "Cloth not found" });
     }
 
-    const { name, description, price, size, color, category, stock } = req.body;
+    const {
+      name,
+      description,
+      price,
+      offerPrice,
+      size,
+      color,
+      category,
+      stock,
+    } = req.body;
+
+    let targetPrice = Number(cloth.price || 0);
 
     if (name) cloth.name = name;
     if (description) cloth.description = description;
-    if (price) cloth.price = parseFloat(price);
+    if (price !== undefined && String(price).trim() !== "") {
+      const parsedPrice = Number(price);
+      if (!Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+        return res
+          .status(400)
+          .json({ message: "Price must be a valid number" });
+      }
+
+      cloth.price = parsedPrice;
+      targetPrice = parsedPrice;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(req.body, "offerPrice")) {
+      const parsedOfferPrice = toValidOfferPrice(offerPrice, targetPrice);
+      cloth.offerPrice = parsedOfferPrice;
+    } else if (cloth.offerPrice && cloth.offerPrice >= targetPrice) {
+      cloth.offerPrice = undefined;
+    }
+
     if (size) cloth.size = size;
-    if (color) cloth.color = color;
+    if (Object.prototype.hasOwnProperty.call(req.body, "color")) {
+      cloth.color = normalizeColorOptions(color);
+    }
     if (category) cloth.category = category;
     if (stock) cloth.stock = stock;
     if (req.file) {
