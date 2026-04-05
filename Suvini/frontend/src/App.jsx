@@ -48,6 +48,22 @@ const ADMIN_USERNAME =
   import.meta.env.VITE_ADMIN_EMAIL ||
   "suviniadmin";
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "surekhasravan";
+const ADMIN_LOGIN_IDENTIFIERS = Array.from(
+  new Set(
+    [
+      ADMIN_USERNAME,
+      import.meta.env.VITE_ADMIN_EMAIL,
+      import.meta.env.VITE_ADMIN_USERNAME,
+      "suviniadmin",
+    ]
+      .map((value) =>
+        String(value || "")
+          .trim()
+          .toLowerCase(),
+      )
+      .filter(Boolean),
+  ),
+);
 const USING_DEFAULT_ADMIN_CREDENTIALS =
   !import.meta.env.VITE_ADMIN_USERNAME &&
   !import.meta.env.VITE_ADMIN_EMAIL &&
@@ -313,11 +329,16 @@ function createAdminSession(username) {
   };
 }
 
-function isValidAdminLogin(username, password) {
-  return (
-    username.trim().toLowerCase() === ADMIN_USERNAME.trim().toLowerCase() &&
-    password.trim() === ADMIN_PASSWORD.trim()
+function isAdminUsername(username) {
+  return ADMIN_LOGIN_IDENTIFIERS.includes(
+    String(username || "")
+      .trim()
+      .toLowerCase(),
   );
+}
+
+function isValidAdminLogin(username, password) {
+  return isAdminUsername(username) && password.trim() === ADMIN_PASSWORD.trim();
 }
 
 function getImageUrl(image) {
@@ -1228,6 +1249,15 @@ function ClientLoginPage() {
       return;
     }
 
+    if (isAdminUsername(username)) {
+      setError(
+        USING_DEFAULT_ADMIN_CREDENTIALS
+          ? "Invalid admin credentials. Default: suviniadmin / surekhasravan"
+          : "Invalid admin credentials.",
+      );
+      return;
+    }
+
     if (!isValidClientLogin(username, password)) {
       setError("Invalid website credentials.");
       return;
@@ -1248,12 +1278,18 @@ function ClientLoginPage() {
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Username"
             type="text"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
           />
           <input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             type="password"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
           />
           <button className="btn" type="submit">
             Continue
