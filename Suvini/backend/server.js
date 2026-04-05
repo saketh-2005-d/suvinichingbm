@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const path = require("path");
 
 require("dotenv").config();
 
@@ -39,6 +40,7 @@ app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Fail fast for API routes that require DB when MongoDB is disconnected.
 app.use("/api", (req, res, next) => {
@@ -48,6 +50,11 @@ app.use("/api", (req, res, next) => {
 
   // Allow GET requests to degrade gracefully in route handlers.
   if (req.method === "GET") {
+    return next();
+  }
+
+  // Allow clothes write routes to run local fallback storage when DB is down.
+  if (req.path.startsWith("/clothes")) {
     return next();
   }
 
