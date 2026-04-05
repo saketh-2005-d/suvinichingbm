@@ -16,12 +16,30 @@ const PORT = process.env.PORT || 5000;
 
 // MongoDB Connection
 const mongoUri = process.env.MONGODB_URI;
+const mongooseConnectOptions = {
+  serverSelectionTimeoutMS: 15000,
+  connectTimeoutMS: 15000,
+  socketTimeoutMS: 45000,
+  family: 4,
+  maxPoolSize: 10,
+};
 
 if (mongoUri) {
+  if (!mongoUri.startsWith("mongodb+srv://")) {
+    console.log(
+      "⚠️ Consider using Atlas mongodb+srv URI in production for better DNS routing.",
+    );
+  }
+
   mongoose
-    .connect(mongoUri)
+    .connect(mongoUri, mongooseConnectOptions)
     .then(() => console.log("✅ MongoDB connected"))
-    .catch((err) => console.log("❌ MongoDB connection error:", err));
+    .catch((err) => {
+      console.log("❌ MongoDB connection error:", err.message || err);
+      if (err?.reason?.type) {
+        console.log("❌ MongoDB topology error:", err.reason.type);
+      }
+    });
 } else {
   console.log(
     "⚠️ MONGODB_URI is not set. Configure it in environment variables.",
