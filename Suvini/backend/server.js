@@ -24,6 +24,47 @@ const mongooseConnectOptions = {
   maxPoolSize: 10,
 };
 
+const getMongoCache = () => {
+  if (!global.__suviniMongoCache) {
+    global.__suviniMongoCache = { promise: null };
+  }
+
+  return global.__suviniMongoCache;
+};
+
+const ensureMongoConnection = async () => {
+  if (!mongoUri) {
+    return false;
+  }
+
+  if (mongoose.connection.readyState === 1) {
+    return true;
+  }
+
+  const cache = getMongoCache();
+  if (!cache.promise) {
+    cache.promise = mongoose
+      .connect(mongoUri, mongooseConnectOptions)
+      .then(() => {
+        console.log("✅ MongoDB connected");
+        return true;
+      })
+      .catch((err) => {
+        console.log("❌ MongoDB connection error:", err.message || err);
+        if (err?.reason?.type) {
+          console.log("❌ MongoDB topology error:", err.reason.type);
+        }
+
+        return false;
+      })
+      .finally(() => {
+        cache.promise = null;
+      });
+  }
+
+  return cache.promise;
+};
+
 if (mongoUri) {
   if (!mongoUri.startsWith("mongodb+srv://")) {
     console.log(
@@ -31,15 +72,7 @@ if (mongoUri) {
     );
   }
 
-  mongoose
-    .connect(mongoUri, mongooseConnectOptions)
-    .then(() => console.log("✅ MongoDB connected"))
-    .catch((err) => {
-      console.log("❌ MongoDB connection error:", err.message || err);
-      if (err?.reason?.type) {
-        console.log("❌ MongoDB topology error:", err.reason.type);
-      }
-    });
+  ensureMongoConnection();
 } else {
   console.log(
     "⚠️ MONGODB_URI is not set. Configure it in environment variables.",
@@ -61,7 +94,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Fail fast for API routes that require DB when MongoDB is disconnected.
-app.use("/api", (req, res, next) => {
+app.use("/api", async (req, res, next) => {
   if (req.path === "/health") {
     return next();
   }
@@ -77,6 +110,11 @@ app.use("/api", (req, res, next) => {
   }
 
   if (mongoose.connection.readyState !== 1) {
+    const reconnected = await ensureMongoConnection();
+    if (reconnected) {
+      return next();
+    }
+
     return res.status(503).json({
       message:
         "Database not connected. Check MongoDB Atlas Network Access (IP whitelist) and MONGODB_URI in Vercel.",
